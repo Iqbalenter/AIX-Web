@@ -4,6 +4,59 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import CoinChart from "./CoinChart";
 import OrderBook from "./OrderBook";
+import { get24h } from "../../../lib/binance";
+
+// Helper untuk proxy (sama seperti di binance.js)
+const USE_PROXY = false; // Force direct Binance untuk test
+const PROXY_BASE = '/api/proxy';
+
+function getApiUrl(binanceUrl, params = {}) {
+  if (!USE_PROXY) {
+    return { url: binanceUrl, params };
+  } else {
+    return { 
+      url: PROXY_BASE, 
+      params: { 
+        url: encodeURIComponent(binanceUrl), 
+        ...params 
+      } 
+    };
+  }
+}
+
+// Test function untuk debug
+async function testApiConnection() {
+  try {
+    console.log('Testing API connection...');
+    
+    // Test 1: Direct Binance
+    try {
+      const directRes = await axios.get("https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT", {
+        timeout: 10000,
+      });
+      console.log('✅ Direct Binance API works:', directRes.status);
+    } catch (directErr) {
+      console.log('❌ Direct Binance API failed:', directErr.message);
+    }
+    
+    // Test 2: Proxy API
+    try {
+      const proxyRes = await axios.get("/api/proxy", {
+        params: {
+          url: encodeURIComponent("https://api.binance.com/api/v3/ticker/24hr"),
+          symbol: "BTCUSDT"
+        },
+        timeout: 10000,
+      });
+      console.log('✅ Proxy API works:', proxyRes.status);
+    } catch (proxyErr) {
+      console.log('❌ Proxy API failed:', proxyErr.message);
+    }
+    
+  } catch (err) {
+    console.error('Test failed:', err);
+  }
+}
 
 const PAGE_SIZE = 10;
 
@@ -49,11 +102,16 @@ export default function ListCoin() {
     try {
       setErrMsg("");
       setLoading(true);
-      const res = await axios.get("https://api.binance.com/api/v3/ticker/24hr", {
-        timeout: 15000,
-      });
+      
+      console.log('ListCoin - Fetching data...');
+      console.log('ListCoin - USE_PROXY:', USE_PROXY);
+      
+      // Gunakan function dari binance.js yang sudah handle proxy
+      const data = await get24h(); // tanpa symbol = ambil semua
+      
+      console.log('ListCoin - Data received:', Array.isArray(data), data?.length);
 
-      const filtered = res.data
+      const filtered = data
         .filter((t) => /USDT$/.test(t.symbol))
         .filter((t) => !/(UP|DOWN|BULL|BEAR)USDT$/.test(t.symbol))
         .map((t) => {
@@ -72,6 +130,7 @@ export default function ListCoin() {
         .sort((a, b) => b.volume24h - a.volume24h);
 
       setCoins(filtered);
+      console.log('ListCoin - Filtered coins:', filtered.length);
 
       // jika ada selected, sinkronkan harga/volume terbarunya
       if (selected) {
@@ -79,8 +138,8 @@ export default function ListCoin() {
         if (s) setSelected(s);
       }
     } catch (err) {
-      console.error(err);
-      setErrMsg("Failed to retrieve data, Please refresh.");
+      console.error('ListCoin API Error:', err);
+      setErrMsg(`Gagal memuat data: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -138,7 +197,10 @@ export default function ListCoin() {
 
         {errMsg && (
           <div className="mb-4 rounded-lg border border-red-700 bg-red-900/30 text-red-300 px-4 py-3">
-            {errMsg}
+            <div>{errMsg}</div>
+            <div className="text-xs mt-2 opacity-70">
+              Environment: {process.env.NODE_ENV || 'development'} | Using Proxy: {USE_PROXY ? 'Yes' : 'No'}
+            </div>
           </div>
         )}
 

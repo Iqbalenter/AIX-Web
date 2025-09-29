@@ -3,6 +3,24 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { getBase, getIconUrl, formatCurrency, formatNumber } from "../../../lib/binance";
 
+// Helper untuk proxy (sama seperti di binance.js)
+const USE_PROXY = process.env.NODE_ENV === 'production';
+const PROXY_BASE = '/api/proxy';
+
+function getApiUrl(binanceUrl, params = {}) {
+  if (!USE_PROXY) {
+    return { url: binanceUrl, params };
+  } else {
+    return { 
+      url: PROXY_BASE, 
+      params: { 
+        url: encodeURIComponent(binanceUrl), 
+        ...params 
+      } 
+    };
+  }
+}
+
 /**
  * Dialog pencari simbol dari Binance 24h ticker (spot).
  * Props:
@@ -23,7 +41,10 @@ export default function SymbolPicker({ open, onClose, onSelect }) {
     async function load() {
       try {
         setErr(""); setLoading(true);
-        const { data } = await axios.get("https://api.binance.com/api/v3/ticker/24hr", { timeout: 15000 });
+        const binanceUrl = "https://api.binance.com/api/v3/ticker/24hr";
+        const { url, params } = getApiUrl(binanceUrl);
+        
+        const { data } = await axios.get(url, { params, timeout: 15000 });
         if (!active) return;
 
         const items = data
@@ -41,8 +62,8 @@ export default function SymbolPicker({ open, onClose, onSelect }) {
 
         setList(items);
       } catch (e) {
-        console.error(e);
-        setErr("Gagal memuat daftar koin.");
+        console.error('SymbolPicker API Error:', e);
+        setErr("Gagal memuat daftar koin. Silakan coba lagi.");
       } finally {
         setLoading(false);
       }

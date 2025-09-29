@@ -38,7 +38,11 @@ export default function TradingHeader({ symbol, onSelectSymbol }) {
           setMark({ markPrice: last, fundingRate: null, nextFundingTime: null, source: "Spot (fallback)" });
         }
       } catch (e) {
-        console.error(e);
+        console.error('TradingHeader API Error:', e);
+        // Set default values untuk mencegah crash
+        if (active) {
+          setInfo({ lastPrice: 0, vol24h: 0, changePct: 0 });
+        }
       }
     }
 

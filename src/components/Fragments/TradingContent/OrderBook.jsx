@@ -2,6 +2,24 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
+// Helper untuk proxy (sama seperti di binance.js)
+const USE_PROXY = process.env.NODE_ENV === 'production';
+const PROXY_BASE = '/api/proxy';
+
+function getApiUrl(binanceUrl, params = {}) {
+  if (!USE_PROXY) {
+    return { url: binanceUrl, params };
+  } else {
+    return { 
+      url: PROXY_BASE, 
+      params: { 
+        url: encodeURIComponent(binanceUrl), 
+        ...params 
+      } 
+    };
+  }
+}
+
 function num(n) { return Number(n); }
 function fmt(n) {
   if (n === null || n === undefined || isNaN(n)) return "—";
@@ -22,9 +40,11 @@ export default function OrderBook({ symbol }) {
     async function load() {
       try {
         setErr("");
-        const url = "https://api.binance.com/api/v3/depth";
+        const binanceUrl = "https://api.binance.com/api/v3/depth";
+        const { url, params } = getApiUrl(binanceUrl, { symbol, limit: 20 });
+        
         const { data } = await axios.get(url, {
-          params: { symbol, limit: 20 },
+          params,
           timeout: 15000,
         });
         if (!active) return;
@@ -32,8 +52,8 @@ export default function OrderBook({ symbol }) {
         setBids(data.bids.map(([price, size]) => ({ price: num(price), size: num(size) })));
         setAsks(data.asks.map(([price, size]) => ({ price: num(price), size: num(size) })));
       } catch (e) {
-        console.error(e);
-        setErr("Gagal memuat order book.");
+        console.error('OrderBook API Error:', e);
+        setErr("Gagal memuat order book. Silakan coba lagi.");
       }
     }
     load();

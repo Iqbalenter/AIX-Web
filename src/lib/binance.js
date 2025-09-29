@@ -2,6 +2,27 @@
 import axios from "axios";
 
 export const ICON_BASE = "https://unpkg.com/cryptocurrency-icons@0.18.1/svg/color";
+
+// Simple proxy untuk bypass blocking
+const USE_PROXY = process.env.NODE_ENV === 'production'; // Hanya di production (Vercel)
+const PROXY_BASE = '/api/proxy';
+
+// Helper function untuk get URL (proxy atau direct)
+function getApiUrl(binanceUrl, params = {}) {
+  if (!USE_PROXY) {
+    // Development: langsung ke Binance
+    return { url: binanceUrl, params };
+  } else {
+    // Production: via proxy
+    return { 
+      url: PROXY_BASE, 
+      params: { 
+        url: encodeURIComponent(binanceUrl), 
+        ...params 
+      } 
+    };
+  }
+}
 const ICON_EXCEPTIONS = { IOTA: "miota" };
 
 export const getBase = (symbol) => symbol?.replace("USDT", "") ?? "";
@@ -33,9 +54,13 @@ export const formatCurrency = (num) => {
 // 24h ticker (spot) — sudah Anda pakai sebelumnya
 export async function get24h(symbol) {
   // jika symbol diisi: hanya ambil 1, jika tidak: ambil semua
-  const url = "https://api.binance.com/api/v3/ticker/24hr";
+  const binanceUrl = "https://api.binance.com/api/v3/ticker/24hr";
+  const symbolParams = symbol ? { symbol } : {};
+  
+  const { url, params } = getApiUrl(binanceUrl, symbolParams);
+  
   const { data } = await axios.get(url, {
-    params: symbol ? { symbol } : undefined,
+    params,
     timeout: 15000,
   });
   return data;
@@ -45,8 +70,10 @@ export async function get24h(symbol) {
 // Jika tidak ada di futures, kita fallback ke lastPrice 24h ticker.
 export async function getPremiumIndex(symbol) {
   try {
-    const url = "https://fapi.binance.com/fapi/v1/premiumIndex";
-    const { data } = await axios.get(url, { params: { symbol }, timeout: 12000 });
+    const binanceUrl = "https://fapi.binance.com/fapi/v1/premiumIndex";
+    const { url, params } = getApiUrl(binanceUrl, { symbol });
+    
+    const { data } = await axios.get(url, { params, timeout: 12000 });
     // data: { markPrice, lastFundingRate, nextFundingTime, ... }
     return {
       ok: true,

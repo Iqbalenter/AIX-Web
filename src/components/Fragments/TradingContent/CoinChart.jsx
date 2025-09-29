@@ -4,6 +4,24 @@ import axios from "axios";
 // ✅ v5 API: impor class seri yang ingin dipakai
 import { createChart, CandlestickSeries } from "lightweight-charts";
 
+// Helper untuk proxy (sama seperti di binance.js)
+const USE_PROXY = process.env.NODE_ENV === 'production';
+const PROXY_BASE = '/api/proxy';
+
+function getApiUrl(binanceUrl, params = {}) {
+  if (!USE_PROXY) {
+    return { url: binanceUrl, params };
+  } else {
+    return { 
+      url: PROXY_BASE, 
+      params: { 
+        url: encodeURIComponent(binanceUrl), 
+        ...params 
+      } 
+    };
+  }
+}
+
 // Daftar timeframe (interval Binance)
 const TF_LIST = [
   { key: "5m", label: "5m" },
@@ -17,9 +35,11 @@ const TF_LIST = [
 
 // Helper: ambil klines Binance lalu map ke format lightweight-charts
 async function fetchKlines(symbol, interval, limit = 500) {
-  const url = "https://api.binance.com/api/v3/klines";
+  const binanceUrl = "https://api.binance.com/api/v3/klines";
+  const { url, params } = getApiUrl(binanceUrl, { symbol, interval, limit });
+  
   const { data } = await axios.get(url, {
-    params: { symbol, interval, limit },
+    params,
     timeout: 15000,
   });
   // Binance candle: [openTime, open, high, low, close, volume, closeTime, ...]
@@ -128,9 +148,9 @@ export default function CoinChart({ symbol, height = null, refreshMs = 15000 }) 
         seriesRef.current.setData(rows);
         chartRef.current?.timeScale().fitContent();
       } catch (e) {
-        console.error(e);
+        console.error('CoinChart API Error:', e);
         if (!active) return;
-        setErr("Gagal memuat data chart. Coba interval lain atau refresh.");
+        setErr("Gagal memuat data chart. Silakan coba lagi atau pilih interval lain.");
       } finally {
         if (active) setLoading(false);
       }
