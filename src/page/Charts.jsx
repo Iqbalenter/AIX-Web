@@ -27,7 +27,7 @@ export default function Trading() {
   const base = getBase(symbol.toUpperCase());
 
   return (
-    <div className="charts-page text-zinc-100 min-h-screen px-6">
+    <div className="charts-page text-zinc-100 min-h-screen px-2 sm:px-2 lg:px-6">
     <NavbarTrading/>
       <div className="max-w-7xl mx-auto">
 

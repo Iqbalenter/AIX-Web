@@ -40,22 +40,30 @@ async function fetchKlines(symbol, interval, limit = 500) {
  * - height?: number (default 420)
  * - refreshMs?: number (default 15000)
  */
-export default function CoinChart({ symbol, height = 420, refreshMs = 15000 }) {
+export default function CoinChart({ symbol, height = null, refreshMs = 15000 }) {
   const containerRef = useRef(null);
   const chartRef = useRef(null);
   const seriesRef = useRef(null);
   const [interval, setIntervalKey] = useState("1h");
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+  const [autoHeight, setAutoHeight] = useState(420);
 
   // Inisialisasi chart sekali (mount)
   useEffect(() => {
     if (!containerRef.current) return;
 
     // Buat chart
+    const containerWidth = containerRef.current.clientWidth;
+    // Hitung tinggi otomatis berdasarkan lebar container bila height tidak diberikan
+    const initialHeight = typeof height === "number" && height > 0
+      ? height
+      : Math.max(260, Math.min(560, Math.round(containerWidth * 0.6)));
+    setAutoHeight(initialHeight);
+
     const chart = createChart(containerRef.current, {
-      width: containerRef.current.clientWidth,
-      height,
+      width: containerWidth,
+      height: initialHeight,
       layout: {
         background: { type: "solid", color: "#0f172a" }, // tailwind slate-900
         textColor: "#cbd5e1", // slate-300
@@ -87,7 +95,12 @@ export default function CoinChart({ symbol, height = 420, refreshMs = 15000 }) {
 
     // Responsif
     const ro = new ResizeObserver(() => {
-      chart.applyOptions({ width: containerRef.current.clientWidth, height });
+      const w = containerRef.current.clientWidth;
+      const h = typeof height === "number" && height > 0
+        ? height
+        : Math.max(260, Math.min(560, Math.round(w * 0.6)));
+      setAutoHeight(h);
+      chart.applyOptions({ width: w, height: h });
     });
     ro.observe(containerRef.current);
 
@@ -140,12 +153,12 @@ export default function CoinChart({ symbol, height = 420, refreshMs = 15000 }) {
   return (
     <div className="flex flex-col gap-3">
       {/* Timeframe Tabs */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap no-scrollbar -mx-1 px-1">
         {TF_LIST.map((tf) => (
           <button
             key={tf.key}
             onClick={() => setIntervalKey(tf.key)}
-            className={`px-3 py-1.5 text-sm rounded-lg border transition ${
+            className={`shrink-0 px-3 py-1.5 text-sm rounded-lg border transition ${
               interval === tf.key
                 ? " text-white"
                 : "border-slate-700 text-slate-300 hover:bg-slate-800"
@@ -160,7 +173,7 @@ export default function CoinChart({ symbol, height = 420, refreshMs = 15000 }) {
       <div
         ref={containerRef}
         className="w-full rounded-xl border border-slate-800"
-        style={{ minHeight: height }}
+        style={{ minHeight: typeof height === "number" && height > 0 ? height : autoHeight }}
       />
 
       {/* Status */}

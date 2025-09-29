@@ -609,6 +609,10 @@ html:not(.dark) .listcoin-container .overflow-x-auto {
     /* border-gray-300 */
 }
 
+/* Utility: hide scrollbar for horizontal containers */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
 html.dark .listcoin-container .overflow-x-auto {
     border-color: #1f2937;
     /* border-gray-800 */
