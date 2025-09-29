@@ -1,16 +1,12 @@
 {
-  "version": 2,
   "functions": {
     "api/proxy.js": {
-      "runtime": "nodejs18.x",
       "maxDuration": 30
     },
     "api/test-proxy.js": {
-      "runtime": "nodejs18.x",
       "maxDuration": 30
     },
     "api/coingecko-proxy.js": {
-      "runtime": "nodejs18.x",
       "maxDuration": 30
     }
   },
@@ -32,8 +28,5 @@
         }
       ]
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
