@@ -123,7 +123,28 @@ export async function getPremiumIndex(symbol) {
       nextFundingTime: Number(data.nextFundingTime ?? 0),
       raw: data,
     };
-  } catch {
+  } catch (error) {
+    console.warn('getPremiumIndex failed:', error.message);
+    
+    // Fallback: Try direct Binance if was using proxy
+    if (USE_PROXY) {
+      try {
+        const { data } = await axios.get("https://fapi.binance.com/fapi/v1/premiumIndex", {
+          params: { symbol },
+          timeout: 12000
+        });
+        return {
+          ok: true,
+          markPrice: Number(data.markPrice),
+          lastFundingRate: Number(data.lastFundingRate ?? 0),
+          nextFundingTime: Number(data.nextFundingTime ?? 0),
+          raw: data,
+        };
+      } catch (fallbackError) {
+        console.warn('getPremiumIndex direct fallback also failed:', fallbackError.message);
+      }
+    }
+    
     return { ok: false };
   }
 }

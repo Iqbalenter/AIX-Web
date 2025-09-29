@@ -63,7 +63,35 @@ export default function SymbolPicker({ open, onClose, onSelect }) {
         setList(items);
       } catch (e) {
         console.error('SymbolPicker API Error:', e);
-        setErr("Gagal memuat daftar koin. Silakan coba lagi.");
+        
+        // Fallback: Gunakan daftar koin populer yang hardcoded
+        console.log('SymbolPicker - Using fallback coin list');
+        const fallbackCoins = [
+          { symbol: 'BTCUSDT', price: 65000, change: 2.5, volume: 15000000000 },
+          { symbol: 'ETHUSDT', price: 3500, change: 1.8, volume: 8000000000 },
+          { symbol: 'BNBUSDT', price: 600, change: -0.5, volume: 1200000000 },
+          { symbol: 'ADAUSDT', price: 0.5, change: 3.2, volume: 800000000 },
+          { symbol: 'SOLUSDT', price: 140, change: 5.1, volume: 2500000000 },
+          { symbol: 'DOTUSDT', price: 7, change: -1.2, volume: 400000000 },
+          { symbol: 'LINKUSDT', price: 15, change: 2.8, volume: 600000000 },
+          { symbol: 'LTCUSDT', price: 70, change: 1.5, volume: 300000000 },
+          { symbol: 'AVAXUSDT', price: 35, change: 4.2, volume: 700000000 },
+          { symbol: 'MATICUSDT', price: 0.8, change: -2.1, volume: 350000000 },
+          { symbol: 'UNIUSDT', price: 8, change: 3.5, volume: 200000000 },
+          { symbol: 'ATOMUSDT', price: 12, change: -0.8, volume: 150000000 }
+        ];
+        
+        const items = fallbackCoins.map((coin) => ({
+          symbol: coin.symbol,
+          base: getBase(coin.symbol),
+          pair: coin.symbol.replace("USDT", "/USDT"),
+          price: coin.price,
+          volume24h: coin.volume,
+          change24h: coin.change,
+        }));
+        
+        setList(items);
+        setErr("Menggunakan daftar koin demo. API tidak tersedia.");
       } finally {
         setLoading(false);
       }

@@ -39,9 +39,36 @@ export default function TradingHeader({ symbol, onSelectSymbol }) {
         }
       } catch (e) {
         console.error('TradingHeader API Error:', e);
-        // Set default values untuk mencegah crash
+        // Set fallback values dengan realistic data untuk demo
         if (active) {
-          setInfo({ lastPrice: 0, vol24h: 0, changePct: 0 });
+          const fallbackPrices = {
+            'BTCUSDT': { price: 65000, change: 2.5 },
+            'ETHUSDT': { price: 3500, change: 1.8 },
+            'BNBUSDT': { price: 600, change: -0.5 },
+            'ADAUSDT': { price: 0.5, change: 3.2 },
+            'SOLUSDT': { price: 140, change: 5.1 },
+            'DOTUSDT': { price: 7, change: -1.2 },
+            'LINKUSDT': { price: 15, change: 2.8 },
+            'LTCUSDT': { price: 70, change: 1.5 },
+            'AVAXUSDT': { price: 35, change: 4.2 },
+            'MATICUSDT': { price: 0.8, change: -2.1 }
+          };
+          
+          const fallback = fallbackPrices[symbol] || { price: 100, change: 0 };
+          const randomVolume = Math.random() * 1000000000 + 100000000; // Random volume
+          
+          setInfo({ 
+            lastPrice: fallback.price, 
+            vol24h: randomVolume, 
+            changePct: fallback.change 
+          });
+          
+          setMark({ 
+            markPrice: fallback.price, 
+            fundingRate: null, 
+            nextFundingTime: null, 
+            source: "Demo Data" 
+          });
         }
       }
     }
