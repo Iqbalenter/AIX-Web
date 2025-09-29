@@ -8,6 +8,9 @@
     },
     "api/coingecko-proxy.js": {
       "maxDuration": 30
+    },
+    "api/klines-fallback.js": {
+      "maxDuration": 30
     }
   },
   "headers": [
