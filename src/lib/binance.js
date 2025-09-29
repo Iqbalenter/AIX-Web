@@ -53,17 +53,58 @@ export const formatCurrency = (num) => {
 
 // 24h ticker (spot) — sudah Anda pakai sebelumnya
 export async function get24h(symbol) {
-  // jika symbol diisi: hanya ambil 1, jika tidak: ambil semua
   const binanceUrl = "https://api.binance.com/api/v3/ticker/24hr";
   const symbolParams = symbol ? { symbol } : {};
   
-  const { url, params } = getApiUrl(binanceUrl, symbolParams);
-  
-  const { data } = await axios.get(url, {
-    params,
-    timeout: 15000,
-  });
-  return data;
+  try {
+    // Coba dengan proxy/direct sesuai environment
+    const { url, params } = getApiUrl(binanceUrl, symbolParams);
+    console.log('get24h - Using URL:', url, 'with params:', params);
+    
+    const { data } = await axios.get(url, {
+      params,
+      timeout: 15000,
+    });
+    
+    console.log('get24h - Success via', USE_PROXY ? 'proxy' : 'direct');
+    return data;
+    
+  } catch (error) {
+    console.warn('get24h - Primary method failed:', error.message);
+    
+    // Multiple fallback strategies
+    if (USE_PROXY) {
+      // Fallback 1: Try direct Binance
+      try {
+        console.log('get24h - Trying direct Binance fallback...');
+        const { data } = await axios.get(binanceUrl, {
+          params: symbolParams,
+          timeout: 15000,
+        });
+        console.log('get24h - Direct Binance fallback successful');
+        return data;
+      } catch (directError) {
+        console.warn('get24h - Direct Binance also failed:', directError.message);
+      }
+      
+      // Fallback 2: Try CoinGecko proxy (only for all symbols)
+      if (!symbol) {
+        try {
+          console.log('get24h - Trying CoinGecko fallback...');
+          const { data } = await axios.get('/api/coingecko-proxy', {
+            timeout: 15000,
+          });
+          console.log('get24h - CoinGecko fallback successful');
+          return data;
+        } catch (coinGeckoError) {
+          console.warn('get24h - CoinGecko fallback also failed:', coinGeckoError.message);
+        }
+      }
+    }
+    
+    // If all fallbacks fail, throw the original error
+    throw error;
+  }
 }
 
 // Mark price & funding (Futures). Tidak semua pair spot punya data futures.
