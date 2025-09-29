@@ -72,33 +72,39 @@ export async function get24h(symbol) {
   } catch (error) {
     console.warn('get24h - Primary method failed:', error.message);
     
+    // Check if it's a blocking error (451)
+    const isBlocked = error.message.includes('451') || error.message.includes('blocked');
+    
     // Multiple fallback strategies
     if (USE_PROXY) {
-      // Fallback 1: Try direct Binance
-      try {
-        console.log('get24h - Trying direct Binance fallback...');
-        const { data } = await axios.get(binanceUrl, {
-          params: symbolParams,
-          timeout: 15000,
-        });
-        console.log('get24h - Direct Binance fallback successful');
-        return data;
-      } catch (directError) {
-        console.warn('get24h - Direct Binance also failed:', directError.message);
-      }
-      
-      // Fallback 2: Try CoinGecko proxy (only for all symbols)
-      if (!symbol) {
+      // Fallback 1: Try direct Binance (only if not blocked)
+      if (!isBlocked) {
         try {
-          console.log('get24h - Trying CoinGecko fallback...');
-          const { data } = await axios.get('/api/coingecko-proxy', {
+          console.log('get24h - Trying direct Binance fallback...');
+          const { data } = await axios.get(binanceUrl, {
+            params: symbolParams,
             timeout: 15000,
           });
-          console.log('get24h - CoinGecko fallback successful');
+          console.log('get24h - Direct Binance fallback successful');
           return data;
-        } catch (coinGeckoError) {
-          console.warn('get24h - CoinGecko fallback also failed:', coinGeckoError.message);
+        } catch (directError) {
+          console.warn('get24h - Direct Binance also failed:', directError.message);
         }
+      } else {
+        console.log('get24h - Skipping direct Binance (API blocked)');
+      }
+      
+      // Fallback 2: Try CoinGecko proxy
+      try {
+        console.log('get24h - Trying CoinGecko fallback...');
+        const { data } = await axios.get('/api/coingecko-proxy', {
+          params: symbol ? { symbol } : {},
+          timeout: 15000,
+        });
+        console.log('get24h - CoinGecko fallback successful');
+        return symbol ? [data] : data; // Ensure array format consistency
+      } catch (coinGeckoError) {
+        console.warn('get24h - CoinGecko fallback also failed:', coinGeckoError.message);
       }
     }
     

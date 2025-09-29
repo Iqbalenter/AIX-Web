@@ -14,7 +14,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('CoinGecko - Starting request...');
+    const { symbol } = req.query;
+    console.log('CoinGecko - Starting request for symbol:', symbol);
     
     // Get top coins with USDT pairs
     const coinsUrl = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h';
@@ -53,6 +54,13 @@ export default async function handler(req, res) {
     });
 
     console.log('CoinGecko - Converted to Binance format:', binanceFormat.length);
+    
+    // If specific symbol requested, filter for it
+    if (symbol) {
+      const filtered = binanceFormat.filter(coin => coin.symbol === symbol.toUpperCase());
+      console.log('CoinGecko - Filtered for symbol:', symbol, 'found:', filtered.length);
+      return res.status(200).json(filtered.length > 0 ? filtered[0] : binanceFormat[0]);
+    }
     
     return res.status(200).json(binanceFormat);
 

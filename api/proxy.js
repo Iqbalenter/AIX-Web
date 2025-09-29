@@ -61,11 +61,17 @@ export default async function handler(req, res) {
           const errorText = await response.text();
           console.log(`Proxy - HTTP ${response.status} on attempt ${attempts}:`, errorText.substring(0, 200));
           
+          // HTTP 451 = Unavailable For Legal Reasons (blocked)
+          if (response.status === 451) {
+            console.log('Proxy - Binance is blocked (HTTP 451), stopping retries');
+            throw new Error(`Binance API blocked in this region (HTTP 451)`);
+          }
+          
           if (attempts === maxAttempts) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
           }
           
-          // Wait before retry
+          // Wait before retry (but not for 451)
           await new Promise(resolve => setTimeout(resolve, 1000 * attempts));
         }
       } catch (error) {
