@@ -1,25 +1,7 @@
 // src/components/Fragments/TradingContent/SymbolPicker.jsx
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
-import { getBase, getIconUrl, formatCurrency, formatNumber } from "../../../lib/binance";
+import { getBase, getIconUrl, formatCurrency, formatNumber, get24h } from "../../../lib/binance";
 
-// Helper untuk proxy (sama seperti di binance.js)
-const USE_PROXY = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
-const PROXY_BASE = '/api/proxy';
-
-function getApiUrl(binanceUrl, params = {}) {
-  if (!USE_PROXY) {
-    return { url: binanceUrl, params };
-  } else {
-    return { 
-      url: PROXY_BASE, 
-      params: { 
-        url: encodeURIComponent(binanceUrl), 
-        ...params 
-      } 
-    };
-  }
-}
 
 /**
  * Dialog pencari simbol dari Binance 24h ticker (spot).
@@ -41,10 +23,9 @@ export default function SymbolPicker({ open, onClose, onSelect }) {
     async function load() {
       try {
         setErr(""); setLoading(true);
-        const binanceUrl = "https://api.binance.com/api/v3/ticker/24hr";
-        const { url, params } = getApiUrl(binanceUrl);
         
-        const { data } = await axios.get(url, { params, timeout: 15000 });
+        // Gunakan get24h() yang sama seperti ListCoin.jsx
+        const data = await get24h(); // tanpa symbol = ambil semua
         if (!active) return;
 
         const items = data
@@ -55,43 +36,16 @@ export default function SymbolPicker({ open, onClose, onSelect }) {
             base: getBase(t.symbol),             // BTC
             pair: t.symbol.replace("USDT", "/USDT"),
             price: Number(t.lastPrice),
-            volume24h: Number(t.quoteVolume),
+            volume24h: Number(t.quoteVolume || t.volume || 0),
             change24h: Number(t.priceChangePercent),
           }))
           .sort((a, b) => b.volume24h - a.volume24h); // urut top volume
 
         setList(items);
+        console.log('SymbolPicker - Loaded coins:', items.length);
       } catch (e) {
         console.error('SymbolPicker API Error:', e);
-        
-        // Fallback: Gunakan daftar koin populer yang hardcoded
-        console.log('SymbolPicker - Using fallback coin list');
-        const fallbackCoins = [
-          { symbol: 'BTCUSDT', price: 65000, change: 2.5, volume: 15000000000 },
-          { symbol: 'ETHUSDT', price: 3500, change: 1.8, volume: 8000000000 },
-          { symbol: 'BNBUSDT', price: 600, change: -0.5, volume: 1200000000 },
-          { symbol: 'ADAUSDT', price: 0.5, change: 3.2, volume: 800000000 },
-          { symbol: 'SOLUSDT', price: 140, change: 5.1, volume: 2500000000 },
-          { symbol: 'DOTUSDT', price: 7, change: -1.2, volume: 400000000 },
-          { symbol: 'LINKUSDT', price: 15, change: 2.8, volume: 600000000 },
-          { symbol: 'LTCUSDT', price: 70, change: 1.5, volume: 300000000 },
-          { symbol: 'AVAXUSDT', price: 35, change: 4.2, volume: 700000000 },
-          { symbol: 'MATICUSDT', price: 0.8, change: -2.1, volume: 350000000 },
-          { symbol: 'UNIUSDT', price: 8, change: 3.5, volume: 200000000 },
-          { symbol: 'ATOMUSDT', price: 12, change: -0.8, volume: 150000000 }
-        ];
-        
-        const items = fallbackCoins.map((coin) => ({
-          symbol: coin.symbol,
-          base: getBase(coin.symbol),
-          pair: coin.symbol.replace("USDT", "/USDT"),
-          price: coin.price,
-          volume24h: coin.volume,
-          change24h: coin.change,
-        }));
-        
-        setList(items);
-        setErr("Menggunakan daftar koin demo. API tidak tersedia.");
+        setErr("Gagal memuat daftar koin. Silakan coba lagi.");
       } finally {
         setLoading(false);
       }
