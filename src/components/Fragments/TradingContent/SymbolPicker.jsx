@@ -4,7 +4,7 @@ import axios from "axios";
 import { getBase, getIconUrl, formatCurrency, formatNumber } from "../../../lib/binance";
 
 // Helper untuk proxy (sama seperti di binance.js)
-const USE_PROXY = process.env.NODE_ENV === 'production';
+const USE_PROXY = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
 const PROXY_BASE = '/api/proxy';
 
 function getApiUrl(binanceUrl, params = {}) {

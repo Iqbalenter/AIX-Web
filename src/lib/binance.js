@@ -4,7 +4,7 @@ import axios from "axios";
 export const ICON_BASE = "https://unpkg.com/cryptocurrency-icons@0.18.1/svg/color";
 
 // Simple proxy untuk bypass blocking
-const USE_PROXY = process.env.NODE_ENV === 'production'; // Hanya di production (Vercel)
+const USE_PROXY = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
 const PROXY_BASE = '/api/proxy';
 
 // Helper function untuk get URL (proxy atau direct)

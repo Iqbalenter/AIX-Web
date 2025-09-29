@@ -7,7 +7,7 @@ import OrderBook from "./OrderBook";
 import { get24h } from "../../../lib/binance";
 
 // Helper untuk proxy (sama seperti di binance.js)
-const USE_PROXY = false; // Force direct Binance untuk test
+const USE_PROXY = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
 const PROXY_BASE = '/api/proxy';
 
 function getApiUrl(binanceUrl, params = {}) {
@@ -24,39 +24,6 @@ function getApiUrl(binanceUrl, params = {}) {
   }
 }
 
-// Test function untuk debug
-async function testApiConnection() {
-  try {
-    console.log('Testing API connection...');
-    
-    // Test 1: Direct Binance
-    try {
-      const directRes = await axios.get("https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT", {
-        timeout: 10000,
-      });
-      console.log('✅ Direct Binance API works:', directRes.status);
-    } catch (directErr) {
-      console.log('❌ Direct Binance API failed:', directErr.message);
-    }
-    
-    // Test 2: Proxy API
-    try {
-      const proxyRes = await axios.get("/api/proxy", {
-        params: {
-          url: encodeURIComponent("https://api.binance.com/api/v3/ticker/24hr"),
-          symbol: "BTCUSDT"
-        },
-        timeout: 10000,
-      });
-      console.log('✅ Proxy API works:', proxyRes.status);
-    } catch (proxyErr) {
-      console.log('❌ Proxy API failed:', proxyErr.message);
-    }
-    
-  } catch (err) {
-    console.error('Test failed:', err);
-  }
-}
 
 const PAGE_SIZE = 10;
 
