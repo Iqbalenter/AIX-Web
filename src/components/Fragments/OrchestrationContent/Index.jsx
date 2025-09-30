@@ -1,4 +1,4 @@
-import OrchestrationImage from "../../../assets/Gemini_Generated_Image_yv3bc8yv3bc8yv3b 1.png";
+import OrchestrationImage from "../../../assets/AIX Eco.png";
 
 const OrchestrationContent = () => {
     return (
