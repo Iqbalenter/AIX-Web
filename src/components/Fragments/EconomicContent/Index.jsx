@@ -10,7 +10,7 @@ const EconomicContent = () => {
                         The Economic Engine for
                     </h1>
                     <h1 className="text-center text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold leading-tight">
-                        Autonomous <span className="text-yellow-300">AI Agents</span>
+                        Autonomous <span className="text-yellow-300">AI</span>
                     </h1>
                 </div>
 

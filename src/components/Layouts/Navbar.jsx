@@ -18,7 +18,7 @@ const Navbar = () => {
                     alt="Logo"
                     className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
                 />
-                <span className="navbar-home font-semibold text-sm sm:text-base md:text-lg">AIX Agent</span>
+                <span className="navbar-home font-semibold text-sm sm:text-base md:text-lg">AIX</span>
                 </NavLink>
             </div>
 

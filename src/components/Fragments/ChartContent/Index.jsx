@@ -1,4 +1,4 @@
-import Charts from "../../../assets/Frame 11.png";
+import Charts from "../../../assets/futures aix.png";
 
 const ChartContent = () => {
     return (

@@ -1,18 +1,18 @@
 import { NavLink } from "react-router-dom";
 import SosmedVideo from "../../../assets/SocialVideo.mp4"
 
-import YotubeIcon from "../../../assets/SVG (2).png";
+import InstagramIcon from "../../../assets/mdi_instagram.png";
 import XIcon from "../../../assets/SVG (3).png";
 import DiscordIcon from "../../../assets/SVG (4).png";
 import TelegramIcon from "../../../assets/SVG (5).png";
-import GithubIcon from "../../../assets/SVG (6).png";
+import TiktokIcon from "../../../assets/ic_baseline-tiktok.png";
 
 const SosmedContent = () => {
     const socialLinks = [
         { 
-            icon: YotubeIcon, 
-            alt: "YouTube", 
-            href: "#", // Add actual YouTube link when available
+            icon: InstagramIcon, 
+            alt: "Instagram", 
+            href: "https://www.instagram.com/aix.crypto?igsh=M2xkMnMydWpjenJk ", // Add actual YouTube link when available
             external: true 
         },
         { 
@@ -34,9 +34,9 @@ const SosmedContent = () => {
             external: true 
         },
         { 
-            icon: GithubIcon, 
-            alt: "GitHub", 
-            href: "#", // Add GitHub link when available
+            icon: TiktokIcon, 
+            alt: "Tiktok", 
+            href: "https://vt.tiktok.com/ZSSrxLGGV/", // Add GitHub link when available
             external: true 
         }
     ];

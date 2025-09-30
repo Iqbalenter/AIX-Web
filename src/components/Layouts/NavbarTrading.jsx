@@ -18,7 +18,7 @@ const NavbarTrading = () => {
                         alt="AIX Agent Logo"
                         className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
                     />
-                    <span className="navbar-trading font-semibold text-sm sm:text-base md:text-lg whitespace-nowrap">AIX Agent</span>
+                    <span className="navbar-trading font-semibold text-sm sm:text-base md:text-lg whitespace-nowrap">AIX</span>
                 </NavLink>
             </div>
 
