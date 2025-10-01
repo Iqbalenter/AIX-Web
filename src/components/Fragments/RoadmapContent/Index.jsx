@@ -3,10 +3,10 @@ const RoadmapContent = () => {
         <div className="roadmap-content py-12 sm:py-16 md:py-24 lg:py-32 xl:py-40 px-4 sm:px-6 md:px-8 lg:px-30 xl:px-40">
             <div className="max-w-7xl mx-auto">
                 <div className="title text-center">
-                    <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold leading-tight max-w-4xl mx-auto">
-                        AIX 2025 Roadmap Innovation to Market Leadership
+                    <h1 className="text-md sm:text-md md:text-3xl lg:text-4xl xl:text-5xl font-semibold leading-tight mx-auto">
+                        Roadmap Innovation to Market Leadership
                     </h1>
-                    <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold mt-2 sm:mt-2.5">
+                    <h2 className="text-md sm:text-md md:text-3xl lg:text-4xl xl:text-5xl font-semibold mt-2 sm:mt-2.5">
                         <span className="text-yellow-300">3</span> Phase
                     </h2>
                 </div>
