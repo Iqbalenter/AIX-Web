@@ -4,11 +4,8 @@ const RoadmapContent = () => {
             <div className="max-w-7xl mx-auto">
                 <div className="title text-center">
                     <h1 className="text-md sm:text-md md:text-3xl lg:text-4xl xl:text-5xl font-semibold leading-tight mx-auto">
-                        Roadmap Innovation to Market Leadership
+                        Roadmap to Market Leadership<span className="ml-2 text-yellow-300">3</span> Phase
                     </h1>
-                    <h2 className="text-md sm:text-md md:text-3xl lg:text-4xl xl:text-5xl font-semibold mt-2 sm:mt-2.5">
-                        <span className="text-yellow-300">3</span> Phase
-                    </h2>
                 </div>
 
                 <div className="cards grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-3 xl:gap-4 mt-8 sm:mt-10">
